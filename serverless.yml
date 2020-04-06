@@ -23,6 +23,8 @@ service: serverlessnode
 provider:
   name: aws
   runtime: nodejs12.x
+  profile: default
+  region: us-east-2
 
 # you can overwrite defaults here
 #  stage: dev
@@ -58,15 +60,15 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  listEC2Instances:
+    handler: handler.listEC2Instances
+    events:
+      - http:
+          path: listEC2Instances
+          method: get
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
 #      - websocket: $connect
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
