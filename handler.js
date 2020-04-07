@@ -18,21 +18,19 @@
 //To test with Jest and mock api and AWS
 
 //include all instances true
+//roles set up on yml as well.
 
 const accessInstanceList = require("./ec2");
-// const accessInstanceList = async () => {
-//   const result = await EC2List();
-//   return {
-//     statusCode: 200,
-//     body: {
-//       message: "EC2 instance information received",
-//       data: JSON.stringify(result),
-//     },
-//   };
-// };
 
-module.exports.listEC2Instances = (event) => {
-  accessInstanceList().then((data) => {
-    console.log("test :", data);
-  });
+module.exports.listEC2Instances = async (event) => {
+  const result = await accessInstanceList();
+  console.log("returned result :", result);
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message:
+        "Actuall EC2 instances in all regions and the secuity groups of each EC2 instance",
+      data: result,
+    }),
+  };
 };
