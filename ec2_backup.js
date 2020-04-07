@@ -6,7 +6,7 @@ var params = {
   DryRun: false,
 };
 
-const getEC2List = async () => {
+module.exports = async () => {
   try {
     const description = await ec2.describeInstances(params).promise();
 
@@ -15,27 +15,15 @@ const getEC2List = async () => {
       el.Instances.forEach((innerInstance) => {
         let tempObj = {};
         tempObj.InstanceId = innerInstance.InstanceId;
-        tempObj.SecurityGroups = innerInstance.SecurityGroups;
+        tempObj.SecurityGroups = JSON.stringify(innerInstance.SecurityGroups);
 
         eachInstance.push(tempObj);
-        // console.log("description: ", description);
+        console.log("description: ", description);
       });
     });
 
-    // console.log("getInstanceList completed");
     return eachInstance;
   } catch (e) {
     console.log("error :", e);
   }
-};
-
-module.exports = async () => {
-  const result = await getEC2List();
-  return {
-    statusCode: 200,
-    body: {
-      message: "EC2 instance information received",
-      data: JSON.stringify(result),
-    },
-  };
 };

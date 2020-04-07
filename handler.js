@@ -17,30 +17,22 @@
 //Testing
 //To test with Jest and mock api and AWS
 
-// Create and array of regions (endpoints). [can also use AWS describeRegions() ]
-// https://stackoverflow.com/questions/42086712/how-to-see-all-running-amazon-ec2-instances-across-all-regions
-// https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#describeRegions-property
-// ec2.waitFor('securityGroupExists', params, function(err, data)
+//include all instances true
 
-//accountId가 인풋 벨류가 되어야 겠네.
-//css 씌우도록 하자. Cors 허용하고, 히로쿠에 올리자. 처음에는 url로 바로 실행하게 하고.
+const accessInstanceList = require("./ec2");
+// const accessInstanceList = async () => {
+//   const result = await EC2List();
+//   return {
+//     statusCode: 200,
+//     body: {
+//       message: "EC2 instance information received",
+//       data: JSON.stringify(result),
+//     },
+//   };
+// };
 
-//  ec2.describeAccountAttributes(params, function(err, data) {
-
-const AWS = require("aws-sdk");
-AWS.config.region = "us-east-2";
-
-module.exports.listEC2Instances = async (event) => {
-  let ec2 = new AWS.EC2();
-  let result = (await ec2)
-    ? ec2.describeInstances()
-    : "Unable to get ec2 instances";
-  console.log("ec2 instance list", result);
-  // return {
-  //   statusCode: 200,
-  //   body: JSON.stringify({
-  //     message: "ec2 list here. ",
-  //     instanceList: result,
-  //   }),
-  // };
+module.exports.listEC2Instances = (event) => {
+  accessInstanceList().then((data) => {
+    console.log("test :", data);
+  });
 };
