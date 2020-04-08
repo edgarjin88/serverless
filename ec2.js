@@ -5,11 +5,9 @@ let ec2 = new AWS.EC2({ apiVersion: "2016-11-15" });
 var params = {
   DryRun: false,
 };
-
-// var regionParams = { AllRegions: true };
-// will return error
-
 var regionParams = {};
+var securityParams = {};
+//regionParams and securityParam info not required at this stage.
 
 const getAllRegions = async () => {
   const regionNameList = [];
@@ -19,53 +17,46 @@ const getAllRegions = async () => {
   });
   return regionNameList;
 };
-var securityParams = {
-  // ... input parameters ...
-};
-// ec2
-//   .waitFor("securityGroupExists", securityParams)
-//   .promise()
-//   .then((data) => console.log("security group:", data));
 
-const func1 = async () => {
+module.exports = async () => {
   const regionList = await getAllRegions();
 
-  let finalInstanceList = regionList.reduce(
-    async (acc, currentName, currentIndex) => {
-      let ec2 = new AWS.EC2({ apiVersion: "2016-11-15", region: currentName });
-      const eachInstance = [];
+  let finalInstanceList = regionList.reduce(async (acc, currentName) => {
+    let ec2 = new AWS.EC2({ apiVersion: "2016-11-15", region: currentName });
 
-      const description = await ec2.describeInstances(params).promise();
-      const allAvailableSecurityGroups = await ec2
-        .waitFor("securityGroupExists", securityParams)
-        .promise();
+    const eachRegion = {
+      region_name: currentName,
+      instance_info: [],
+    };
 
-      if (description.Reservations && description.Reservations.length > 0) {
-        const regionAndSecurityGroups = {
-          regionName: currentName,
-          allAvailableSecurityGroups,
-        };
+    const description = await ec2.describeInstances(params).promise();
+    const { SecurityGroups } = await ec2
+      .waitFor("securityGroupExists", securityParams)
+      .promise();
 
-        eachInstance.push(regionAndSecurityGroups);
+    // if EC2s instance exist, update region information.
+    if (description.Reservations && description.Reservations.length > 0) {
+      // All available security groups in a region with actuall EC2
+      eachRegion.available_security_groups = SecurityGroups;
 
-        description.Reservations.forEach((el) => {
-          el.Instances.forEach((innerInstance) => {
-            let tempObj = {};
-            tempObj.InstanceId = innerInstance.InstanceId;
-            tempObj.SecurityGroups = innerInstance.SecurityGroups;
+      description.Reservations.forEach((el) => {
+        el.Instances.forEach((innerInstance) => {
+          let tempObj = {};
+          tempObj.InstanceId = innerInstance.InstanceId;
 
-            eachInstance.push(tempObj);
-          });
+          //Scurity group that an EC2 actually uses
+          tempObj.SecurityGroups = innerInstance.SecurityGroups;
+          eachRegion.instance_info.push(tempObj);
         });
-      }
+      });
+    }
 
-      const addedInfo = await acc;
-      eachInstance.length > 0 ? addedInfo.push(eachInstance) : null;
-      return Promise.all(addedInfo);
-    },
-    []
-  );
+    const addedInfo = await acc;
+    eachRegion.instance_info.length > 0 ? addedInfo.push(eachRegion) : null;
+
+    return Promise.all(addedInfo);
+  }, []);
   return finalInstanceList;
 };
 
-func1().then((data) => console.log("comfirm :", data));
+// func1().then((data) => console.log("shit :", data));

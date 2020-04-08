@@ -30,7 +30,7 @@ module.exports.listEC2Instances = async (event) => {
     body: JSON.stringify({
       message:
         "Actuall EC2 instances in all regions and the secuity groups of each EC2 instance",
-      data: result,
+      available_regions_with_EC2Intances: result,
     }),
   };
 };
