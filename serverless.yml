@@ -2,6 +2,8 @@ service: serverlessnode
 
 plugins:
   - serverless-iam-roles-per-function
+  - serverless-webpack
+  - serverless-offline
 
 provider:
   name: aws
@@ -21,24 +23,10 @@ functions:
       - Effect: "Allow"
         Action:
           - "ec2:Describe*"
-        Resource: "*"
-
-      - Effect: "Allow"
-        Action: "elasticloadbalancing:Describe*"
-        Resource: "*"
-
-      - Effect: "Allow"
-        Action: "autoscaling:Describe*"
-        Resource: "*"
-
-      - Effect: "Allow"
-        Action:
+          - "elasticloadbalancing:Describe*"
+          - "autoscaling:Describe*"
           - "cloudwatch:ListMetrics"
           - "cloudwatch:GetMetricStatistics"
           - "cloudwatch:Describe*"
-        Resource: "*"
-
-      - Effect: "Allow"
-        Action:
           - "logs:*"
         Resource: "*"

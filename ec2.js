@@ -1,7 +1,8 @@
+require("regenerator-runtime/runtime");
+
 var AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
 let ec2 = new AWS.EC2({ apiVersion: "2016-11-15" });
-
 var params = {
   DryRun: false,
 };
@@ -22,7 +23,7 @@ const getAllRegions = async () => {
   }
 };
 
-module.exports = async () => {
+const accessInstanceList = async () => {
   try {
     const regionList = await getAllRegions();
 
@@ -35,6 +36,7 @@ module.exports = async () => {
       };
 
       const description = await ec2.describeInstances(params).promise();
+
       const { SecurityGroups } = await ec2
         .waitFor("securityGroupExists", securityParams)
         .promise();
@@ -66,3 +68,6 @@ module.exports = async () => {
     console.log("error in accessInstanceList function :", e);
   }
 };
+
+exports.accessInstanceList = accessInstanceList;
+exports.getAllRegions = getAllRegions;
