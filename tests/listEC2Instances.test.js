@@ -10,7 +10,6 @@ const {
 } = require("../testUtils/mockData");
 
 var AWS = require("aws-sdk-mock");
-require("regenerator-runtime/runtime");
 
 describe("getAllRegions", () => {
   test("Get the list of the available regions' names", async () => {
